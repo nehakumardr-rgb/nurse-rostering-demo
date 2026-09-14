@@ -65,20 +65,33 @@ st.sidebar.info(
 # SAMPLE NURSE DATA
 # ---------------------------------------------------------
 
-nurses = [
-    "Nurse 1",
-    "Nurse 2",
-    "Nurse 3",
-    "Nurse 4",
-    "Nurse 5",
-    "Nurse 6",
-    "Nurse 7",
-    "Nurse 8",
-    "Nurse 9",
-    "Nurse 10",
-    "Nurse 11",
-    "Nurse 12"
-]
+# ---------------------------------------------------------
+# NURSE INPUT
+# ---------------------------------------------------------
+
+st.header("👩‍⚕️ Nurse Information")
+
+st.write("Enter the nurses who will be included in this week's roster.")
+
+number_of_nurses = st.number_input(
+    "Number of nurses",
+    min_value=1,
+    max_value=50,
+    value=12,
+    step=1
+)
+
+nurses = []
+
+for i in range(number_of_nurses):
+
+    nurse_name = st.text_input(
+        f"Nurse {i + 1}",
+        value=f"Nurse {i + 1}",
+        key=f"nurse_{i}"
+    )
+
+    nurses.append(nurse_name)
 
 days = [
     "Monday",
