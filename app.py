@@ -113,9 +113,11 @@ nurses = []
 
 for i in range(number_of_nurses):
 
+    st.write(f"**Nurse {i + 1}**")
+
     nurse_name = st.text_input(
-        f"Nurse {i + 1} Name",
-        value=f"Nurse {i + 1}",
+        "Enter nurse name",
+        value="",
         key=f"nurse_{i}"
     )
 
