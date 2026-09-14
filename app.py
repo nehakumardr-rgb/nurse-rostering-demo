@@ -420,12 +420,27 @@ if st.button(
 
         st.session_state["roster"] = roster_df
 
-    else:
+       else:
+
+        total_required = int(
+            shift_requirements_df[
+                ["Morning", "Evening", "Night"]
+            ].sum().sum()
+        )
+
+        total_capacity = sum(
+            int(x)
+            for x in preferences_df["Max Shifts"]
+        )
 
         st.error(
-            "No feasible roster could be generated. "
-            "Try increasing nurse availability or reducing "
-            "the staffing requirements."
+            "No feasible roster could be generated."
+        )
+
+        st.warning(
+            f"Required nurse-shifts: {total_required} | "
+            f"Maximum available nurse-shifts: {total_capacity}. "
+            "Try increasing maximum shifts or reducing staffing requirements."
         )
 # ---------------------------------------------------------
 # DISPLAY ROSTER
