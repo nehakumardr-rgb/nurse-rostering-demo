@@ -102,7 +102,86 @@ days = [
     "Saturday",
     "Sunday"
 ]
+# ---------------------------------------------------------
+# NURSE AVAILABILITY
+# ---------------------------------------------------------
 
+st.header("📋 Nurse Availability")
+
+st.write(
+    "Select the shifts each nurse is available to work. "
+    "A nurse will only be assigned to shifts marked as available."
+)
+
+shifts = ["Morning", "Evening", "Night"]
+
+availability_data = []
+
+for nurse in nurses:
+
+    st.subheader(nurse)
+
+    nurse_availability = {
+        "Nurse": nurse
+    }
+
+    for day in days:
+
+        selected_shifts = st.multiselect(
+            f"{day} availability",
+            shifts,
+            default=shifts,
+            key=f"availability_{nurse}_{day}"
+        )
+
+        nurse_availability[day] = selected_shifts
+
+    availability_data.append(nurse_availability)
+
+availability_df = pd.DataFrame(availability_data)
+
+# ---------------------------------------------------------
+# NURSE PREFERENCES
+# ---------------------------------------------------------
+
+st.header("⭐ Nurse Preferences")
+
+st.write(
+    "Enter each nurse's preferred shift and maximum number "
+    "of shifts for the week."
+)
+
+preferences_data = []
+
+for nurse in nurses:
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        preferred_shift = st.selectbox(
+            f"{nurse} - Preferred shift",
+            ["No preference", "Morning", "Evening", "Night"],
+            key=f"preferred_shift_{nurse}"
+        )
+
+    with col2:
+        max_shifts = st.number_input(
+            f"{nurse} - Maximum shifts",
+            min_value=1,
+            max_value=7,
+            value=5,
+            key=f"max_shifts_{nurse}"
+        )
+
+    preferences_data.append(
+        {
+            "Nurse": nurse,
+            "Preferred Shift": preferred_shift,
+            "Max Shifts": max_shifts
+        }
+    )
+
+preferences_df = pd.DataFrame(preferences_data)
 # ---------------------------------------------------------
 # SAMPLE ROSTER GENERATOR
 # ---------------------------------------------------------
