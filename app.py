@@ -408,9 +408,25 @@ if st.button(
     use_container_width=True
 ):
 
-    roster_df = generate_sample_roster()
+      roster_df = generate_roster(
+        nurses,
+        days,
+        availability_df,
+        preferences_df,
+        shift_requirements_df
+    )
 
-    st.session_state["roster"] = roster_df
+    if roster_df is not None:
+
+        st.session_state["roster"] = roster_df
+
+    else:
+
+        st.error(
+            "No feasible roster could be generated. "
+            "Try increasing nurse availability or reducing "
+            "the staffing requirements."
+        )
 
 # ---------------------------------------------------------
 # DISPLAY ROSTER
