@@ -201,44 +201,6 @@ for nurse in nurses:
     )
 
 preferences_df = pd.DataFrame(preferences_data)
-# ---------------------------------------------------------
-# SAMPLE ROSTER GENERATOR
-# ---------------------------------------------------------
-
-def generate_sample_roster():
-
-    shifts = ["Morning", "Evening", "Night", "Off"]
-
-    roster = []
-
-    for i, nurse in enumerate(nurses):
-
-        nurse_schedule = {}
-
-        for j, day in enumerate(days):
-
-            # Create a simple rotating sample roster
-            pattern = (i + j) % 4
-
-            if pattern == 0:
-                shift = "Morning"
-            elif pattern == 1:
-                shift = "Evening"
-            elif pattern == 2:
-                shift = "Night"
-            else:
-                shift = "Off"
-
-            nurse_schedule[day] = shift
-
-        roster.append(
-            {
-                "Nurse": nurse,
-                **nurse_schedule
-            }
-        )
-
-    return pd.DataFrame(roster)
 
 
 # ---------------------------------------------------------
