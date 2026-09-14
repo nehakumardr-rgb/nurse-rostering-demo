@@ -2,6 +2,16 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 
+days = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+]
+
 # ---------------------------------------------------------
 # PAGE CONFIGURATION
 # ---------------------------------------------------------
@@ -33,34 +43,51 @@ st.divider()
 
 st.sidebar.header("⚙️ Staffing Requirements")
 
-morning_required = st.sidebar.number_input(
-    "Morning nurses required",
-    min_value=1,
-    max_value=20,
-    value=4
+st.sidebar.write(
+    "Enter the minimum number of nurses required "
+    "for each shift."
 )
 
-evening_required = st.sidebar.number_input(
-    "Evening nurses required",
-    min_value=1,
-    max_value=20,
-    value=3
-)
+staffing_requirements = []
 
-night_required = st.sidebar.number_input(
-    "Night nurses required",
-    min_value=1,
-    max_value=20,
-    value=2
-)
+for day in days:
 
-st.sidebar.divider()
+    st.sidebar.subheader(day)
 
-st.sidebar.info(
-    "This first version uses sample nurse data. "
-    "Your actual CP-SAT optimization model will be connected later."
-)
+    morning = st.sidebar.number_input(
+        f"{day} - Morning",
+        min_value=0,
+        max_value=20,
+        value=4,
+        key=f"staff_morning_{day}"
+    )
 
+    evening = st.sidebar.number_input(
+        f"{day} - Evening",
+        min_value=0,
+        max_value=20,
+        value=3,
+        key=f"staff_evening_{day}"
+    )
+
+    night = st.sidebar.number_input(
+        f"{day} - Night",
+        min_value=0,
+        max_value=20,
+        value=2,
+        key=f"staff_night_{day}"
+    )
+
+    staffing_requirements.append(
+        {
+            "Day": day,
+            "Morning": morning,
+            "Evening": evening,
+            "Night": night
+        }
+    )
+
+shift_requirements_df = pd.DataFrame(staffing_requirements)
 # ---------------------------------------------------------
 # SAMPLE NURSE DATA
 # ---------------------------------------------------------
@@ -93,15 +120,7 @@ for i in range(number_of_nurses):
 
     nurses.append(nurse_name)
 
-days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
-]
+
 # ---------------------------------------------------------
 # NURSE AVAILABILITY
 # ---------------------------------------------------------
