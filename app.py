@@ -443,20 +443,51 @@ if st.button(
             "Try increasing maximum shifts or reducing staffing requirements."
         )
 # ---------------------------------------------------------
-# DISPLAY ROSTER
+# GENERATE ROSTER BUTTON
 # ---------------------------------------------------------
 
-if "roster" in st.session_state:
+st.header("📅 Weekly Nurse Roster")
 
-    roster_df = st.session_state["roster"]
+if st.button(
+    "🚀 Generate Roster",
+    type="primary",
+    use_container_width=True
+):
 
-    st.dataframe(
-        roster_df,
-        use_container_width=True,
-        hide_index=True
+    roster_df = generate_roster(
+        nurses,
+        days,
+        availability_df,
+        preferences_df,
+        shift_requirements_df
     )
 
-    st.divider()
+    if roster_df is not None:
+
+        st.session_state["roster"] = roster_df
+
+    else:
+
+        total_required = int(
+            shift_requirements_df[
+                ["Morning", "Evening", "Night"]
+            ].sum().sum()
+        )
+
+        total_capacity = sum(
+            int(x)
+            for x in preferences_df["Max Shifts"]
+        )
+
+        st.error(
+            "No feasible roster could be generated."
+        )
+
+        st.warning(
+            f"Required nurse-shifts: {total_required} | "
+            f"Maximum available nurse-shifts: {total_capacity}. "
+            "Try increasing maximum shifts or reducing staffing requirements."
+        )
 
      # -----------------------------------------------------
     # VALIDATION SUMMARY
