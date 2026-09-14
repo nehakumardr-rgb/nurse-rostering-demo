@@ -407,7 +407,6 @@ if st.button(
     type="primary",
     use_container_width=True
 ):
-
     roster_df = generate_roster(
         nurses,
         days,
@@ -417,66 +416,16 @@ if st.button(
     )
 
     if roster_df is not None:
-
         st.session_state["roster"] = roster_df
-
-       else:
-
-        total_required = int(
-            shift_requirements_df[
-                ["Morning", "Evening", "Night"]
-            ].sum().sum()
-        )
-
-        total_capacity = sum(
-            int(x)
-            for x in preferences_df["Max Shifts"]
-        )
-
-        st.error(
-            "No feasible roster could be generated."
-        )
-
-        st.warning(
-            f"Required nurse-shifts: {total_required} | "
-            f"Maximum available nurse-shifts: {total_capacity}. "
-            "Try increasing maximum shifts or reducing staffing requirements."
-        )
-# ---------------------------------------------------------
-# GENERATE ROSTER BUTTON
-# ---------------------------------------------------------
-
-st.header("📅 Weekly Nurse Roster")
-
-if st.button(
-    "🚀 Generate Roster",
-    type="primary",
-    use_container_width=True
-):
-
-    roster_df = generate_roster(
-        nurses,
-        days,
-        availability_df,
-        preferences_df,
-        shift_requirements_df
-    )
-
-    if roster_df is not None:
-
-        st.session_state["roster"] = roster_df
-
     else:
-
         total_required = int(
             shift_requirements_df[
                 ["Morning", "Evening", "Night"]
             ].sum().sum()
         )
 
-        total_capacity = sum(
-            int(x)
-            for x in preferences_df["Max Shifts"]
+        total_capacity = int(
+            preferences_df["Max Shifts"].sum()
         )
 
         st.error(
@@ -489,7 +438,69 @@ if st.button(
             "Try increasing maximum shifts or reducing staffing requirements."
         )
 
-     # -----------------------------------------------------
+  # ---------------------------------------------------------
+# DISPLAY ROSTER
+# ---------------------------------------------------------
+
+if "roster" in st.session_state:
+
+    roster_df = st.session_state["roster"]
+
+    st.dataframe(
+        roster_df,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    st.divider()
+
+    # -----------------------------------------------------
+    # VALIDATION SUMMARY
+    # -----------------------------------------------------
+
+    st.header("✅ Roster Validation")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric(
+            "Nurses",
+            len(nurses)
+        )
+
+    with col2:
+        st.metric(
+            "Total required nurse-shifts",
+            int(
+                shift_requirements_df[
+                    ["Morning", "Evening", "Night"]
+                ].sum().sum()
+            )
+        )
+
+    st.success("Roster generated successfully.")
+
+    # -----------------------------------------------------
+    # DOWNLOAD
+    # -----------------------------------------------------
+
+    csv = roster_df.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        label="⬇️ Download Roster",
+        data=csv,
+        file_name="nurse_roster.csv",
+        mime="text/csv"
+    )
+
+else:
+
+    st.info(
+        "👈 Set the staffing requirements and click "
+        "**Generate Roster** to create the weekly roster."
+    )  
+    
+    # -----------------------------------------------------
     # VALIDATION SUMMARY
     # -----------------------------------------------------
 
