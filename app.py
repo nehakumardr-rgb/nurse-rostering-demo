@@ -408,7 +408,7 @@ if st.button(
     use_container_width=True
 ):
 
-      roster_df = generate_roster(
+          roster_df = generate_roster(
         nurses,
         days,
         availability_df,
