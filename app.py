@@ -408,7 +408,7 @@ if st.button(
     use_container_width=True
 ):
 
-          roster_df = generate_roster(
+    roster_df = generate_roster(
         nurses,
         days,
         availability_df,
@@ -427,7 +427,6 @@ if st.button(
             "Try increasing nurse availability or reducing "
             "the staffing requirements."
         )
-
 # ---------------------------------------------------------
 # DISPLAY ROSTER
 # ---------------------------------------------------------
