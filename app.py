@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from io import BytesIO
+from ortools.sat.python import cp_model
 
 days = [
     "Monday",
@@ -202,7 +203,199 @@ for nurse in nurses:
 
 preferences_df = pd.DataFrame(preferences_data)
 
+# ---------------------------------------------------------
+# CP-SAT ROSTER OPTIMIZER
+# ---------------------------------------------------------
 
+def generate_roster(
+    nurses,
+    days,
+    availability_df,
+    preferences_df,
+    shift_requirements_df
+):
+
+    shifts = ["Morning", "Evening", "Night"]
+
+    model = cp_model.CpModel()
+
+    # -----------------------------------------------------
+    # DECISION VARIABLES
+    # -----------------------------------------------------
+
+    x = {}
+
+    for nurse in nurses:
+        for day in days:
+            for shift in shifts:
+
+                x[nurse, day, shift] = model.NewBoolVar(
+                    f"{nurse}_{day}_{shift}"
+                )
+
+    # -----------------------------------------------------
+    # CONSTRAINT 1:
+    # MAXIMUM ONE SHIFT PER NURSE PER DAY
+    # -----------------------------------------------------
+
+    for nurse in nurses:
+        for day in days:
+
+            model.Add(
+                sum(
+                    x[nurse, day, shift]
+                    for shift in shifts
+                ) <= 1
+            )
+
+    # -----------------------------------------------------
+    # CONSTRAINT 2:
+    # NURSE AVAILABILITY
+    # -----------------------------------------------------
+
+    for nurse in nurses:
+
+        nurse_row = availability_df[
+            availability_df["Nurse"] == nurse
+        ].iloc[0]
+
+        for day in days:
+
+            available_shifts = nurse_row[day]
+
+            for shift in shifts:
+
+                if shift not in available_shifts:
+
+                    model.Add(
+                        x[nurse, day, shift] == 0
+                    )
+
+    # -----------------------------------------------------
+    # CONSTRAINT 3:
+    # MINIMUM STAFFING REQUIREMENT
+    # -----------------------------------------------------
+
+    for _, row in shift_requirements_df.iterrows():
+
+        day = row["Day"]
+
+        for shift in shifts:
+
+            required = int(row[shift])
+
+            model.Add(
+                sum(
+                    x[nurse, day, shift]
+                    for nurse in nurses
+                ) >= required
+            )
+
+    # -----------------------------------------------------
+    # CONSTRAINT 4:
+    # MAXIMUM SHIFTS PER NURSE
+    # -----------------------------------------------------
+
+    for nurse in nurses:
+
+        preference_row = preferences_df[
+            preferences_df["Nurse"] == nurse
+        ].iloc[0]
+
+        max_shifts = int(
+            preference_row["Max Shifts"]
+        )
+
+        model.Add(
+            sum(
+                x[nurse, day, shift]
+                for day in days
+                for shift in shifts
+            ) <= max_shifts
+        )
+
+    # -----------------------------------------------------
+    # OBJECTIVE:
+    # PREFER NURSES' PREFERRED SHIFTS
+    # -----------------------------------------------------
+
+    preference_variables = []
+
+    for nurse in nurses:
+
+        preference_row = preferences_df[
+            preferences_df["Nurse"] == nurse
+        ].iloc[0]
+
+        preferred_shift = preference_row[
+            "Preferred Shift"
+        ]
+
+        if preferred_shift != "No preference":
+
+            for day in days:
+
+                preference_variables.append(
+                    x[nurse, day, preferred_shift]
+                )
+
+    if preference_variables:
+
+        model.Maximize(
+            sum(preference_variables)
+        )
+
+    # -----------------------------------------------------
+    # SOLVE
+    # -----------------------------------------------------
+
+    solver = cp_model.CpSolver()
+
+    solver.parameters.max_time_in_seconds = 10
+
+    status = solver.Solve(model)
+
+    # -----------------------------------------------------
+    # CHECK SOLUTION
+    # -----------------------------------------------------
+
+    if status not in [
+        cp_model.OPTIMAL,
+        cp_model.FEASIBLE
+    ]:
+
+        return None
+
+    # -----------------------------------------------------
+    # CREATE ROSTER
+    # -----------------------------------------------------
+
+    roster = []
+
+    for nurse in nurses:
+
+        nurse_schedule = {
+            "Nurse": nurse
+        }
+
+        for day in days:
+
+            assigned_shift = "Off"
+
+            for shift in shifts:
+
+                if solver.Value(
+                    x[nurse, day, shift]
+                ):
+
+                    assigned_shift = shift
+                    break
+
+            nurse_schedule[day] = assigned_shift
+
+        roster.append(nurse_schedule)
+
+    return pd.DataFrame(roster)
 # ---------------------------------------------------------
 # GENERATE ROSTER BUTTON
 # ---------------------------------------------------------
