@@ -443,13 +443,13 @@ if "roster" in st.session_state:
 
     st.divider()
 
-    # -----------------------------------------------------
+     # -----------------------------------------------------
     # VALIDATION SUMMARY
     # -----------------------------------------------------
 
     st.header("✅ Roster Validation")
 
-        col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
     with col1:
         st.metric(
