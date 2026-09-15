@@ -175,7 +175,7 @@ st.write(
 
 preferences_data = []
 
-for nurse in nurses:
+for nurse_index, nurse in enumerate(nurses):
 
     col1, col2 = st.columns(2)
 
@@ -183,7 +183,7 @@ for nurse in nurses:
         preferred_shift = st.selectbox(
             f"{nurse} - Preferred shift",
             ["No preference", "Morning", "Evening", "Night"],
-            key=f"preferred_shift_{nurse}"
+            key=f"preferred_shift_{nurse_index}"
         )
 
     with col2:
