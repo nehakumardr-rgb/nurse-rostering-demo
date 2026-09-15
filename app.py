@@ -192,7 +192,7 @@ for nurse_index, nurse in enumerate(nurses):
             min_value=1,
             max_value=7,
             value=5,
-            key=f"max_shifts_{nurse}"
+            key=f"max_shifts_{nurse_index}"
         )
 
     preferences_data.append(
