@@ -139,7 +139,7 @@ shifts = ["Morning", "Evening", "Night"]
 
 availability_data = []
 
-for nurse in nurses:
+for nurse_index, nurse in enumerate(nurses):
 
     st.subheader(nurse)
 
@@ -153,7 +153,7 @@ for nurse in nurses:
             f"{day} availability",
             shifts,
             default=shifts,
-            key=f"availability_{nurse}_{day}"
+            key=f"availability_{nurse_index}_{day}"
         )
 
         nurse_availability[day] = selected_shifts
