@@ -422,7 +422,8 @@ if st.button(
 
         st.session_state["roster"] = roster_df
 
-   else:
+else:
+
     st.error("❌ No feasible roster could be generated.")
 
     st.write(
