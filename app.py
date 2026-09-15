@@ -422,89 +422,92 @@ if st.button(
 
         st.session_state["roster"] = roster_df
 
-else:
-
-    st.error("❌ No feasible roster could be generated.")
-
-    st.write(
-        "Your total nurse capacity may be sufficient, but the current "
-        "availability and staffing requirements may not match for specific "
-        "days or shifts."
-    )
-
-    # Check day/shift coverage
-    shortage_data = []
-
-    for day in days:
-        for shift in shifts:
-
-            required = int(
-                staffing_requirements_df[
-                    staffing_requirements_df["Day"] == day
-                ][shift].iloc[0]
-            )
-
-            available = 0
-
-            for nurse in nurses:
-                nurse_row = availability_df[
-                    availability_df["Nurse"] == nurse
-                ]
-
-                if not nurse_row.empty:
-                    available_shifts = nurse_row.iloc[0][day]
-
-                    if shift in available_shifts:
-                        available += 1
-
-            if available < required:
-                shortage_data.append({
-                    "Day": day,
-                    "Shift": shift,
-                    "Required": required,
-                    "Available": available,
-                    "Shortfall": required - available
-                })
-
-    if shortage_data:
-
-        st.warning("⚠️ The following shifts do not have enough available nurses:")
-
-        shortage_df = pd.DataFrame(shortage_data)
-
-        st.dataframe(
-            shortage_df,
-            use_container_width=True,
-            hide_index=True
-        )
-
-        st.write("### What you can adjust")
-
-        st.write(
-            "• Reduce the staffing requirement for the affected shift"
-        )
-
-        st.write(
-            "• Make another nurse available for that day/shift"
-        )
-
-        st.write(
-            "• Change a nurse's **Not Available** selection"
-        )
-
-        st.write(
-            "• Increase the **maximum shifts per week** if overall nurse "
-            "capacity is also limiting the roster"
-        )
-
     else:
 
-        st.warning(
-            "The individual day/shift availability appears sufficient. "
-            "The roster may be infeasible because of the combination of "
-            "maximum shifts, availability, and other constraints."
+        st.error("❌ No feasible roster could be generated.")
+
+        st.write(
+            "Your total nurse capacity may be sufficient, but the current "
+            "availability and staffing requirements may not match for specific "
+            "days or shifts."
         )
 
+        shortage_data = []
+
+        for day in days:
+            for shift in shifts:
+
+                required = int(
+                    staffing_requirements_df[
+                        staffing_requirements_df["Day"] == day
+                    ][shift].iloc[0]
+                )
+
+                available = 0
+
+                for nurse in nurses:
+
+                    nurse_row = availability_df[
+                        availability_df["Nurse"] == nurse
+                    ]
+
+                    if not nurse_row.empty:
+
+                        available_shifts = nurse_row.iloc[0][day]
+
+                        if shift in available_shifts:
+                            available += 1
+
+                if available < required:
+
+                    shortage_data.append({
+                        "Day": day,
+                        "Shift": shift,
+                        "Required": required,
+                        "Available": available,
+                        "Shortfall": required - available
+                    })
+
+        if shortage_data:
+
+            st.warning(
+                "⚠️ The following shifts do not have enough available nurses:"
+            )
+
+            shortage_df = pd.DataFrame(shortage_data)
+
+            st.dataframe(
+                shortage_df,
+                use_container_width=True,
+                hide_index=True
+            )
+
+            st.write("### What you can adjust")
+
+            st.write(
+                "• Reduce the staffing requirement for the affected shift"
+            )
+
+            st.write(
+                "• Make another nurse available for that day/shift"
+            )
+
+            st.write(
+                "• Change a nurse's **Not Available** selection"
+            )
+
+            st.write(
+                "• Increase the **maximum shifts per week** if overall nurse "
+                "capacity is also limiting the roster"
+            )
+
+        else:
+
+            st.warning(
+                "The individual day/shift availability appears sufficient. "
+                "The roster may be infeasible because of the combination of "
+                "maximum shifts, availability, and other constraints."
+            )
 # ---------------------------------------------------------
 # DISPLAY ROSTER
 # ---------------------------------------------------------
